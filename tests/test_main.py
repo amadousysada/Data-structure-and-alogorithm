@@ -1,7 +1,10 @@
+from src.algo.dfs import dfs
 from src.algo.merge_sort import sort
 
 import pytest
 import random
+
+from src.ds.graph import Graph
 
 
 def generate_random_list(length):
@@ -19,8 +22,37 @@ def random_lists():
     yield arrs
 
 
+@pytest.fixture
+def init_edges():
+    vertices = {
+        "a": ["b", "c", "d"],
+        "b": ["a", "d"],
+        "c": ["a"],
+        "d": ["a", "b"]
+    }
+    yield vertices
+
+
+def test_graph(init_edges):
+    g = Graph(edges=init_edges)
+
+    assert g.get_vertices() == ["a", "b", "c", "d"]
+
+    g.add_edge(("e", "f"))
+
+    assert g.get_vertices() == ["a", "b", "c", "d", "e", "f"]
+
+
 def test_merge_sort(random_lists):
     for arr in random_lists:
         random_list, expected_sorted_list = arr
         print(f"list to sort: {random_list} ==> expected result: {expected_sorted_list}")
         assert sort(random_list) == expected_sorted_list
+
+
+def test_recursive_dfs(init_edges):
+    g = Graph(edges=init_edges)
+    g.add_edge(("c", "e"))
+    g.add_edge(("e", "f"))
+
+    assert dfs(graph=g, vertex="a") == ["a", "b", "d", "c", "e", "f"]
