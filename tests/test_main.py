@@ -1,4 +1,7 @@
-from src.algo.dfs import dfs
+from itertools import permutations
+
+from src.algo.bfs import bfs
+from src.algo.dfs import recursive_dfs, iterative_dfs, find_path
 from src.algo.merge_sort import sort
 
 import pytest
@@ -25,10 +28,15 @@ def random_lists():
 @pytest.fixture
 def init_edges():
     vertices = {
-        "a": ["b", "c", "d"],
-        "b": ["a", "d"],
-        "c": ["a"],
-        "d": ["a", "b"]
+        "A": ["B", "C", "E"],
+        "B": ["D", "F"],
+        "C": ["G"],
+        "D": ["B"],
+        "E": ["F"],
+        "F": ["E"],
+        "G": ["C"],
+
+
     }
     yield vertices
 
@@ -36,11 +44,7 @@ def init_edges():
 def test_graph(init_edges):
     g = Graph(edges=init_edges)
 
-    assert g.get_vertices() == ["a", "b", "c", "d"]
-
-    g.add_edge(("e", "f"))
-
-    assert g.get_vertices() == ["a", "b", "c", "d", "e", "f"]
+    assert g.get_vertices() == ["A", "B", "C", "D", "E", "F", "G"]
 
 
 def test_merge_sort(random_lists):
@@ -52,7 +56,25 @@ def test_merge_sort(random_lists):
 
 def test_recursive_dfs(init_edges):
     g = Graph(edges=init_edges)
-    g.add_edge(("c", "e"))
-    g.add_edge(("e", "f"))
 
-    assert dfs(graph=g, vertex="a") == ["a", "b", "d", "c", "e", "f"]
+    assert recursive_dfs(graph=g, vertex="A") == ["A", "B", "D", "F", "E", "C", "G"]
+
+
+def test_iterative_dfs(init_edges):
+    g = Graph(edges=init_edges)
+
+    assert iterative_dfs(graph=g, vertex="A") ==  ["A", "B", "D", "F", "E", "C", "G"]
+
+
+def test_recursive_bfs(init_edges):
+    g = Graph(edges=init_edges)
+
+    assert bfs(graph=g, vertex="A") == ["A", "B", "C", "E", "D", "F", "G"]
+
+
+def test_find_path(init_edges):
+    g = Graph(edges=init_edges)
+
+    assert find_path(graph=g, vertex="A", target="F") == ["A", "B", "F"]
+    assert find_path(graph=g, vertex="A", target="E") == ["A", "B", "F", "E"]
+    assert find_path(graph=g, vertex="A", target="E") == ["A", "B", "F", "E"]
